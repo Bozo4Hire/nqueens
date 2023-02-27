@@ -27,6 +27,10 @@ def generatePopulation(size : int, genomeLength : int) -> Population:
 # funcion para evaluar fitness de un genoma
 # 0 es el valor optimo de fitness y se aleja de el al aumentar el valor
 def fitnessFunction(genome : Genome) -> int :
+    return
+
+
+""" def fitnessFunction(genome : Genome) -> int :
     f1 = 0; f2 =0
     abv = [None]*len(genome)
     blw = [None]*len(genome)
@@ -44,7 +48,7 @@ def fitnessFunction(genome : Genome) -> int :
         if genome[i] == blw[i-1]: f2 += 1
 
     print ("valor de fitness: ", f1 + f2)
-    return f1 + f2
+    return f1 + f2 """
     
 # funcion de cruzamiento
 def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
