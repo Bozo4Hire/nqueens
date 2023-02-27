@@ -24,6 +24,28 @@ def generateGenome(length : int) -> Genome:
 def generatePopulation(size : int, genomeLength : int) -> Population:
     return [generateGenome(genomeLength) for _ in range(size)]
 
+# funcion para evaluar fitness de un genoma
+# 0 es el valor optimo de fitness y se aleja de el al aumentar el valor
+def fitnessFunction(genome : Genome) -> int :
+    f1 = 0; f2 =0
+    abv = [None]*len(genome)
+    blw = [None]*len(genome)
+
+    for i in range(len(genome)):
+        abv[i] = genome[i]-1
+        blw[i] = genome[i]+1
+    
+    print("\nGenoma a evaluar:", genome)
+    print(genomeToStr(genome))
+    print ("Diagonales: ", abv,blw)
+
+    for i in range(1, len(genome)):
+        if genome[i] == abv[i-1]: f1 += 1
+        if genome[i] == blw[i-1]: f2 += 1
+
+    print ("valor de fitness: ", f1 + f2)
+    return f1 + f2
+    
 # funcion de cruzamiento
 def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
     i = randrange(floor(len(p1)/2)+1)
@@ -61,7 +83,7 @@ def genomeToStr(genome : Genome) -> str:
 ##################################################################################
 
 # test de generacion de poblacion
-newPop = generatePopulation(2, 5)
+newPop = generatePopulation(2, 8)
 
 for i in range(len(newPop)):
     print("\n")
@@ -74,3 +96,6 @@ mutation1(newPop[0])
 # test crossover
 print("Padres:",newPop[0], newPop[1])
 print("Hijo:", singlePointCrossover(newPop[0], newPop[1]))
+
+# test fitnessFunction
+fitnessFunction(newPop[0])
