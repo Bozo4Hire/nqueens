@@ -33,27 +33,16 @@ def fitnessFunction(genome : Genome) -> int :
     print(genomeToStr(genome))
 
     for i in range(len(genome)):
-        found_a = 0
-        found_b = 0
+        found_a = False
+        found_b = False
         c = 1 
-        """ for j in range(i+1, len(genome)):
-            if genome[i] == genome[j]+c and found_a == 0:
-                ft += 1
-                found_a == 1
-            if genome[i] == genome[j]-c and found_b == 0:
-                ft += 1 
-                found_b == 1
-            c += 1 """
         for j in range(i+1, len(genome)):
-            if genome[i] == genome[j]+c:
+            if genome[i] == genome[j]+c and found_a == False:
                 ft += 1
-                break
-            c += 1
-        c = 1
-        for j in range(i+1, len(genome)):
-            if genome[i] == genome[j]-c:
+                found_a = True
+            if genome[i] == genome[j]-c and found_b == False:
                 ft += 1 
-                break
+                found_b = True
             c += 1
     print ("valor de fitness: ", ft)
     return ft 
@@ -134,3 +123,4 @@ print("Hijo:", singlePointCrossover(newPop[0], newPop[1]))
 fitnessFunction([7,6,5,4,3,2,1,0])
 fitnessFunction([4, 7, 3, 0, 6, 1, 5, 2])
 fitnessFunction([0,1,2,3,6,5,4,7])
+
