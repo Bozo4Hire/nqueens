@@ -59,13 +59,33 @@ def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
     
     return p2
 
+# funcion de cruzamiento alternativa
+def altCrossover(p1: Genome, p2: Genome, p3: Genome, p4: Genome) -> Genome:
+    return
+
+
 # funcion de mutacion
-def mutation1(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
+def swappingMutation(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
     i = randrange(len(genome))
     j = randrange(len(genome))
     if random() <= probability:
         genome[i], genome [j] = genome[j], genome[i]
         print("Mutation took place. Swapped pos", i, "&", j)
+        print(genome)
+        print(genomeToStr(genome))
+    else:
+        print("Mutation did not took place")
+    return genome
+
+# funcion de mutacion alternativa 
+
+def eliminativeMutation(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
+    i = randrange(len(genome))
+    if random() <= probability:
+        aux = genome[i]
+        genome.pop(i)
+        genome.extend([aux])
+        print("Mutation took place. Eliminated elem at pos", i)
         print(genome)
         print(genomeToStr(genome))
     else:
@@ -98,7 +118,7 @@ for i in range(len(newPop)):
     print(genomeToStr(newPop[i]))
 
 # test de mutacion
-mutation1(newPop[0])
+swappingMutation(newPop[0])
 
 # test crossover
 print("Padres:",newPop[0], newPop[1])
@@ -124,3 +144,9 @@ for i in range(len(pop)):
     print("\n")
     print(pop[i], "Fitness:", fitnessFunction(pop[i]))
     print(genomeToStr(pop[i]))
+
+# test eliminativeMutation 
+print("##############################################")
+print(pop[0])
+print(genomeToStr(pop[0]))
+eliminativeMutation(pop[0])
