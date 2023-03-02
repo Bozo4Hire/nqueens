@@ -1,9 +1,11 @@
 from math import ceil, floor
 from random import choices, randint, randrange, random
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 Genome = List[int]
 Population = List[Genome]
+
+FitnessFunc = Callable[[Genome], int]
 
 # implementacion de algoritmo de Fisher-Yates para generar lista aleatoria
 def fisher_yates_shuffle(list : List[int]) -> List[int]:
@@ -26,11 +28,12 @@ def generatePopulation(size : int, genomeLength : int) -> Population:
 
 # funcion para evaluar fitness de un genoma
 # 0 es el valor optimo de fitness y se aleja de el al aumentar el valor
+# por ejemplo, un genoma de fitness 5 es mas apto que otro con 7
 def fitnessFunction(genome : Genome) -> int :
     ft = 0
 
-    print("\nGenoma a evaluar:", genome)
-    print(genomeToStr(genome))
+    #print("\nGenoma a evaluar:", genome)
+    #print(genomeToStr(genome))
 
     for i in range(len(genome)):
         found_a = False
@@ -44,30 +47,9 @@ def fitnessFunction(genome : Genome) -> int :
                 ft += 1 
                 found_b = True
             c += 1
-    print ("valor de fitness: ", ft)
+    #print ("valor de fitness: ", ft)
     return ft 
 
-
-""" def fitnessFunction(genome : Genome) -> int :
-    f1 = 0; f2 =0
-    abv = [None]*len(genome)
-    blw = [None]*len(genome)
-
-    for i in range(len(genome)):
-        abv[i] = genome[i]-1
-        blw[i] = genome[i]+1
-    
-    print("\nGenoma a evaluar:", genome)
-    print(genomeToStr(genome))
-    print ("Diagonales: ", abv,blw)
-
-    for i in range(1, len(genome)):
-        if genome[i] == abv[i-1]: f1 += 1
-        if genome[i] == blw[i-1]: f2 += 1
-
-    print ("valor de fitness: ", f1 + f2)
-    return f1 + f2 """
-    
 # funcion de cruzamiento
 def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
     i = randrange(floor(len(p1)/2)+1)
@@ -89,6 +71,9 @@ def mutation1(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
     else:
         print("Mutation did not took place")
     return genome
+
+def sortPopulation(population: Population, fitnessFunc: FitnessFunc) -> Population:
+    return sorted(population, key=fitnessFunc)
 
 # funcion conveniente para imprimir un tablero con n reinas 
 def genomeToStr(genome : Genome) -> str:
@@ -120,7 +105,22 @@ print("Padres:",newPop[0], newPop[1])
 print("Hijo:", singlePointCrossover(newPop[0], newPop[1]))
 
 # test fitnessFunction
-fitnessFunction([7,6,5,4,3,2,1,0])
+""" fitnessFunction([7,6,5,4,3,2,1,0])
 fitnessFunction([4, 7, 3, 0, 6, 1, 5, 2])
-fitnessFunction([0,1,2,3,6,5,4,7])
+fitnessFunction([0,1,2,3,6,5,4,7]) """
 
+# test sortPopulation
+
+pop = generatePopulation(5,8)
+print("\nGenerada nueva poblacion\n")
+for i in range(len(pop)):
+    print("\n")
+    print(pop[i], "Fitness:", fitnessFunction(pop[i]))
+    print(genomeToStr(pop[i]))
+
+pop = sortPopulation(pop, fitnessFunction)
+print("##############################################")
+for i in range(len(pop)):
+    print("\n")
+    print(pop[i], "Fitness:", fitnessFunction(pop[i]))
+    print(genomeToStr(pop[i]))
