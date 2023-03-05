@@ -27,10 +27,9 @@ def generatePopulation(size : int, genomeLength : int) -> Population:
     return [generateGenome(genomeLength) for _ in range(size)]
 
 # funcion para evaluar fitness de un genoma
-# 0 es el valor optimo de fitness y se aleja de el al aumentar el valor
-# por ejemplo, un genoma de fitness 5 es mas apto que otro con 7
-def fitnessFunction(genome : Genome) -> int :
-    ft = 0
+# 1 es el valor optimo de fitness, y 0 el peor valor posible
+def fitnessFunction(genome : Genome) -> float :
+    ft = len(genome) - 1
 
     #print("\nGenoma a evaluar:", genome)
     #print(genomeToStr(genome))
@@ -41,14 +40,14 @@ def fitnessFunction(genome : Genome) -> int :
         c = 1 
         for j in range(i+1, len(genome)):
             if genome[i] == genome[j]+c and found_a == False:
-                ft += 1
+                ft -= 1
                 found_a = True
             if genome[i] == genome[j]-c and found_b == False:
-                ft += 1 
+                ft -= 1 
                 found_b = True
             c += 1
     #print ("valor de fitness: ", ft)
-    return ft 
+    return round(ft/(len(genome)-1), 2)
 
 # funcion de cruzamiento
 def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
@@ -81,30 +80,37 @@ def swappingMutation(genome: Genome, num: int = 1, probability: float = 0.5) -> 
     j = randrange(len(genome))
     if random() <= probability:
         genome[i], genome [j] = genome[j], genome[i]
-        print("Mutation took place. Swapped pos", i, "&", j)
-        print(genome)
-        print(genomeToStr(genome))
-    else:
-        print("Mutation did not took place")
+        #print("Mutation took place. Swapped pos", i, "&", j)
+        #print(genome)
+        #print(genomeToStr(genome))
+    #else:
+        #print("Mutation did not took place")
     return genome
 
 # funcion de mutacion alternativa 
-
 def eliminativeMutation(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
     i = randrange(len(genome))
     if random() <= probability:
         aux = genome[i]
         genome.pop(i)
         genome.extend([aux])
-        print("Mutation took place. Eliminated elem at pos", i)
-        print(genome)
-        print(genomeToStr(genome))
-    else:
-        print("Mutation did not took place")
+        #print("Mutation took place. Eliminated elem at pos", i)
+        #print(genome)
+        #print(genomeToStr(genome))
+    #else:
+        #print("Mutation did not took place")
     return genome
 
+# funcion para seleccionar un numero n de padres de acuerdo a su fitness
+def parentSelection(population: Population, fitnessFunc: FitnessFunc, n: int) -> Population:
+    return choices(
+        population = population,
+        weights = [fitnessFunc(genome) for genome in population],
+        k = n
+    )
+
 def sortPopulation(population: Population, fitnessFunc: FitnessFunc) -> Population:
-    return sorted(population, key=fitnessFunc)
+    return sorted(population, key=fitnessFunc, reverse = True)
 
 # funcion conveniente para imprimir un tablero con n reinas 
 def genomeToStr(genome : Genome) -> str:
@@ -118,9 +124,31 @@ def genomeToStr(genome : Genome) -> str:
         aux += "\n"
     return aux
 
+# funcion principal del algoritmo genetico 
+def genAlgorithm(size : int, genome_len : int, ngenerations : int) -> Population:
+    population = generatePopulation(size, genome_len)
+
+    for i in range(ngenerations):
+        population = sortPopulation(population, fitnessFunction)
+        print("Best Genome:",population[0])
+
+        newGeneration = population[0:2]
+
+        for j in range(0, len(population)-2):
+            parents = parentSelection(population, fitnessFunction, 2)
+            offspring = singlePointCrossover(parents[0], parents[1])
+            offspring = swappingMutation(offspring, 1)
+
+            newGeneration += [offspring]
+
+        population = newGeneration
+
+    print(population)
+    return population
+
 ##################################################################################
 
-# test de generacion de poblacion
+""" # test de generacion de poblacion
 newPop = generatePopulation(2, 8)
 
 for i in range(len(newPop)):
@@ -136,9 +164,9 @@ print("Padres:",newPop[0], newPop[1])
 print("Hijo:", singlePointCrossover(newPop[0], newPop[1]))
 
 # test fitnessFunction
-""" fitnessFunction([7,6,5,4,3,2,1,0])
+fitnessFunction([7,6,5,4,3,2,1,0])
 fitnessFunction([4, 7, 3, 0, 6, 1, 5, 2])
-fitnessFunction([0,1,2,3,6,5,4,7]) """
+fitnessFunction([0,1,2,3,6,5,4,7])
 
 # test sortPopulation
 
@@ -165,4 +193,13 @@ eliminativeMutation(pop[0])
 # test altCrossover 
 print("##############################################")
 
-altCrossover(pop[0], pop[1], pop[2])
+altCrossover(pop[0], pop[1], pop[2]) """
+
+newPop = genAlgorithm(8, 8, 30)
+newPop = sortPopulation(newPop, fitnessFunction)
+
+for i in range(len(newPop)):
+    print("\n")
+    print(newPop[i])
+    print(genomeToStr(newPop[i]))
+    print("Fitness Value:", fitnessFunction(newPop[i]))
