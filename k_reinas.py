@@ -56,13 +56,24 @@ def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
     p1 = p1[i:(i+ceil(len(p1)/2))]
     p2 = [k for k in p2 if k not in p1]
     p2[i:i] = p1
-    
     return p2
 
 # funcion de cruzamiento alternativa
-def altCrossover(p1: Genome, p2: Genome, p3: Genome, p4: Genome) -> Genome:
-    return
+def altCrossover(p1: Genome, p2: Genome, p3: Genome) -> Genome:
+    print("Parents: ",p1,p2,p3)
+    i = randrange(floor(len(p1)/2)+1)
+    p1 = p1[i:(i+ceil(len(p1)/2))]
+    p3 = [k for k in p3 if k not in p1]
+    p3[i:i] = p1
 
+    i = randrange(floor(len(p2)/2)+1)
+    p2 = p2[i:(i+ceil(len(p2)/2))]
+    p3 = [k for k in p3 if k not in p2]
+    p3[i:i] = p2
+
+    print("Offspring:",p3)
+    print(genomeToStr(p3))
+    return p3
 
 # funcion de mutacion
 def swappingMutation(genome: Genome, num: int = 1, probability: float = 0.5) -> Genome:
@@ -150,3 +161,8 @@ print("##############################################")
 print(pop[0])
 print(genomeToStr(pop[0]))
 eliminativeMutation(pop[0])
+
+# test altCrossover 
+print("##############################################")
+
+altCrossover(pop[0], pop[1], pop[2])
