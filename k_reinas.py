@@ -1,6 +1,10 @@
 from math import ceil, floor
 from random import choices, randint, randrange, random
 from typing import Callable, List
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 Genome = List[int]
 Population = List[Genome]
@@ -120,14 +124,21 @@ def genomeToStr(genome : Genome) -> str:
 # funcion principal del algoritmo genetico 
 def genAlgorithm(popsize : int, genome_len : int, ngenerations : int, selCrossover : int, selMutation : int) -> Population:
     population = generatePopulation(popsize, genome_len)
-
+    #Arrays auxiliares para generar graficas
+    gens=np.array([])
+    fit =np.array([])
+    f = np.array([])
+    f_mean =np.array([])
+    x=2
     for i in range(ngenerations):
         if fitnessFunction(population[0]) == 1:
             break
         newGeneration = population[0:2]
+        
+    
 
         for j in range(0, len(population)-2):
-
+            
             match selCrossover:
                 case 0:
                     parents = parentSelection(population, fitnessFunction, 2)
@@ -147,13 +158,27 @@ def genAlgorithm(popsize : int, genome_len : int, ngenerations : int, selCrossov
                 case _:
                     print("Error: invalid mutation function id")
                     return
+            
 
             newGeneration += [offspring]
 
-        population = newGeneration
-        population = sortPopulation(population, fitnessFunction)
-    
+            population = newGeneration
+            population = sortPopulation(population, fitnessFunction)
 
+            gens = np.append(gens,i+1)
+            fit = np.append(fit,fitnessFunction(population[0]))
+        
+            for k in range(0,len(population)):
+                f = np.append(f,fitnessFunction(population[k]))
+        
+            f_mean = np.append(f_mean,np.mean(f))
+        
+    
+    #print(len(gens))
+    #print(len(fit))
+    #print(len(f_mean))
+    #print(f_mean)
+    
     print("\nK - Reinas | K =", genome_len)
     print("- Tamaño de Genotipo:\t\t", genome_len)
     print("- Tamaño de Población:\t\t", popsize)
@@ -180,8 +205,26 @@ def genAlgorithm(popsize : int, genome_len : int, ngenerations : int, selCrossov
     print(genomeToStr(population[0]))
     print("Fitness:", fitnessFunction(population[0]), "\n")
 
+
+
+    #Grafica 1
+    plt.figure()
+    plt.plot(gens,fit)
+    plt.title("Algoritmo Genetico")
+    plt.xlabel("Generaciones", size = 16,)
+    plt.ylabel("Valor maximo de funcion objetivo", size = 12,)
+    plt.show()
+    
+    #Grafica 2
+    plt.figure()
+    plt.plot(gens,f_mean)
+    plt.title("Algoritmo Genetico")
+    plt.xlabel("Generaciones", size = 16)
+    plt.ylabel("Fitness promedio", size = 12)
+    plt.show()
+    
     return population
 
 ##################################################################################
 
-newPop = genAlgorithm(16, 10, 100, 1, 1)
+newPop = genAlgorithm(16, 16, 5000, 0, 1)
