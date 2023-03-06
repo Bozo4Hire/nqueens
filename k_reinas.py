@@ -1,6 +1,6 @@
 from math import ceil, floor
 from random import choices, randint, randrange, random
-from typing import Callable, List, Tuple
+from typing import Callable, List
 
 Genome = List[int]
 Population = List[Genome]
@@ -59,7 +59,6 @@ def singlePointCrossover(p1: Genome, p2: Genome) -> Genome:
 
 # funcion de cruzamiento alternativa
 def altCrossover(p1: Genome, p2: Genome, p3: Genome) -> Genome:
-    print("Parents: ",p1,p2,p3)
     i = randrange(floor(len(p1)/2)+1)
     p1 = p1[i:(i+ceil(len(p1)/2))]
     p3 = [k for k in p3 if k not in p1]
@@ -70,8 +69,6 @@ def altCrossover(p1: Genome, p2: Genome, p3: Genome) -> Genome:
     p3 = [k for k in p3 if k not in p2]
     p3[i:i] = p2
 
-    print("Offspring:",p3)
-    print(genomeToStr(p3))
     return p3
 
 # funcion de mutacion
@@ -94,11 +91,6 @@ def eliminativeMutation(genome: Genome, num: int = 1, probability: float = 0.5) 
         aux = genome[i]
         genome.pop(i)
         genome.extend([aux])
-        #print("Mutation took place. Eliminated elem at pos", i)
-        #print(genome)
-        #print(genomeToStr(genome))
-    #else:
-        #print("Mutation did not took place")
     return genome
 
 # funcion para seleccionar un numero n de padres de acuerdo a su fitness
@@ -124,82 +116,72 @@ def genomeToStr(genome : Genome) -> str:
         aux += "\n"
     return aux
 
+
 # funcion principal del algoritmo genetico 
-def genAlgorithm(size : int, genome_len : int, ngenerations : int) -> Population:
-    population = generatePopulation(size, genome_len)
+def genAlgorithm(popsize : int, genome_len : int, ngenerations : int, selCrossover : int, selMutation : int) -> Population:
+    population = generatePopulation(popsize, genome_len)
 
     for i in range(ngenerations):
-        population = sortPopulation(population, fitnessFunction)
-        print("Best Genome:",population[0])
-
+        if fitnessFunction(population[0]) == 1:
+            break
         newGeneration = population[0:2]
 
         for j in range(0, len(population)-2):
-            parents = parentSelection(population, fitnessFunction, 2)
-            offspring = singlePointCrossover(parents[0], parents[1])
-            offspring = swappingMutation(offspring, 1)
+
+            match selCrossover:
+                case 0:
+                    parents = parentSelection(population, fitnessFunction, 2)
+                    offspring = singlePointCrossover(parents[0], parents[1])
+                case 1:
+                    parents = parentSelection(population, fitnessFunction, 3)
+                    offspring = altCrossover(parents[0], parents[1], parents[2])
+                case _:
+                    print("Error: invalid crossover function id")
+                    return
+
+            match selMutation:
+                case 0:
+                    offspring = swappingMutation(offspring)
+                case 1:
+                    offspring = eliminativeMutation(offspring)
+                case _:
+                    print("Error: invalid mutation function id")
+                    return
 
             newGeneration += [offspring]
 
         population = newGeneration
+        population = sortPopulation(population, fitnessFunction)
+    
 
-    print(population)
+    print("\nK - Reinas | K =", genome_len)
+    print("- Tamaño de Genotipo:\t\t", genome_len)
+    print("- Tamaño de Población:\t\t", popsize)
+    print("- Máximo de Generaciones:\t", ngenerations)
+    match selCrossover:
+        case 0: 
+            print("- Función de Crossover:\t\t Single Point Crossover")
+        case 1:
+            print("- Función de Crossover:\t\t Three-parent Crossover")
+    match selCrossover:
+        case 0: 
+            print("- Función de Mutación:\t\t Swapping Mutation")
+        case 1:
+            print("- Función de Mutación:\t\t Eliminative Mutation")
+
+    print("\n================Resultados================")
+    if fitnessFunction(population[0]) == 1:
+        print("Se encontró un óptimo en la generación", i+1)
+    else:
+        print("No se encontró un óptimo")
+
+    print("\nMejor Resultado")
+    print("Genotipo:", population[0], "\nFenotipo:")
+    print(genomeToStr(population[0]))
+    print("Fitness:", fitnessFunction(population[0]), "\n")
+
     return population
 
 ##################################################################################
 
-""" # test de generacion de poblacion
-newPop = generatePopulation(2, 8)
-
-for i in range(len(newPop)):
-    print("\n")
-    print(newPop[i])
-    print(genomeToStr(newPop[i]))
-
-# test de mutacion
-swappingMutation(newPop[0])
-
-# test crossover
-print("Padres:",newPop[0], newPop[1])
-print("Hijo:", singlePointCrossover(newPop[0], newPop[1]))
-
-# test fitnessFunction
-fitnessFunction([7,6,5,4,3,2,1,0])
-fitnessFunction([4, 7, 3, 0, 6, 1, 5, 2])
-fitnessFunction([0,1,2,3,6,5,4,7])
-
-# test sortPopulation
-
-pop = generatePopulation(5,8)
-print("\nGenerada nueva poblacion\n")
-for i in range(len(pop)):
-    print("\n")
-    print(pop[i], "Fitness:", fitnessFunction(pop[i]))
-    print(genomeToStr(pop[i]))
-
-pop = sortPopulation(pop, fitnessFunction)
-print("##############################################")
-for i in range(len(pop)):
-    print("\n")
-    print(pop[i], "Fitness:", fitnessFunction(pop[i]))
-    print(genomeToStr(pop[i]))
-
-# test eliminativeMutation 
-print("##############################################")
-print(pop[0])
-print(genomeToStr(pop[0]))
-eliminativeMutation(pop[0])
-
-# test altCrossover 
-print("##############################################")
-
-altCrossover(pop[0], pop[1], pop[2]) """
-
-newPop = genAlgorithm(8, 8, 30)
-newPop = sortPopulation(newPop, fitnessFunction)
-
-for i in range(len(newPop)):
-    print("\n")
-    print(newPop[i])
-    print(genomeToStr(newPop[i]))
-    print("Fitness Value:", fitnessFunction(newPop[i]))
+newPop = genAlgorithm(16, 10, 100, 1, 1)
