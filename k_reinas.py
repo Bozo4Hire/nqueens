@@ -188,7 +188,7 @@ def genAlgorithm(popsize : int, genome_len : int, ngenerations : int, selCrossov
             print("- Función de Crossover:\t\t Single Point Crossover")
         case 1:
             print("- Función de Crossover:\t\t Three-parent Crossover")
-    match selCrossover:
+    match selMutation:
         case 0: 
             print("- Función de Mutación:\t\t Swapping Mutation")
         case 1:
